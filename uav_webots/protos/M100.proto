@@ -1,0 +1,285 @@
+PROTO M100 [
+  field SFVec3f    translation         0 0 0
+  field SFRotation rotation            1 0 0 -1.5708
+  field SFString   name                "M100"
+  field SFString   model               "M100"
+  field SFNode     physics             NULL
+  field MFColor    recognitionColors   1 0 0
+  field SFString   controller          "void"
+  field MFString   controllerArgs      []
+  field SFString   customData          ""
+  field SFBool     supervisor          FALSE
+  field SFBool     synchronization     TRUE
+  field MFNode     bodySlot            []
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    model IS model
+    physics IS physics
+    recognitionColors IS recognitionColors
+    controller IS controller
+    controllerArgs IS controllerArgs
+    supervisor IS supervisor
+    customData IS customData
+    synchronization IS synchronization
+    boundingObject Box {
+      size 0.806 0.806 0.366
+    }
+    children [
+      Group {
+        children IS bodySlot
+      }
+      LED {
+        translation -0.076933 0 -0.022
+        rotation 1 0 0 1.5707996938995747
+        children [
+          Shape {
+            appearance PBRAppearance {
+              roughness 1
+              metalness 0
+              emissiveIntensity 100
+            }
+            geometry Box {
+              size 0.01 0.015 0.008
+            }
+          }
+        ]
+        color [
+          0 1 0
+        ]
+      }
+      DEF FRONT_RIGHT_PROP Transform {
+        translation 0.22978 -0.22978 0.02305
+        rotation 1 0 0 1.5707996938995747
+        children [
+          Propeller {
+            shaftAxis 0 1 0
+            thrustConstants 2.55e-05 0
+            torqueConstants 5.1e-07 0
+            fastHelixThreshold 50
+            device RotationalMotor {
+              name "front_right_motor"
+              acceleration 1000
+              maxVelocity 5000
+              maxTorque 1000
+            }
+            fastHelix Solid {
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0.5 0.5 0.5
+                    baseColorMap ImageTexture {
+                      url [
+                        "textures/fast_helix.png"
+                      ]
+                    }
+                    metalness 0
+                  }
+                  geometry Cylinder {
+                    height 0.01
+                    radius 0.14
+                  }
+                }
+              ]
+            }
+            slowHelix Solid {
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0.5 0.5 0.5
+                    roughness 0.8
+                    metalness 0
+                  }
+                  geometry Mesh {
+                    url [
+                      "meshes/propeller_ccw.dae"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+      DEF FRONT_LEFT_PROP Transform {
+        translation 0.22978 0.22978 0.02305
+        rotation 1 0 0 1.5707996938995747
+        children [
+          Propeller {
+            shaftAxis 0 1 0
+            thrustConstants -2.55e-05 0
+            torqueConstants 5.1e-07 0
+            fastHelixThreshold 50
+            device RotationalMotor {
+              name "front_left_motor"
+              acceleration 1000
+              maxVelocity 5000
+              maxTorque 1000
+            }
+            fastHelix Solid {
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0.5 0.5 0.5
+                    baseColorMap ImageTexture {
+                      url [
+                        "textures/fast_helix.png"
+                      ]
+                    }
+                    metalness 0
+                  }
+                  geometry Cylinder {
+                    height 0.01
+                    radius 0.14
+                  }
+                }
+              ]
+            }
+            slowHelix Solid {
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0.5 0.5 0.5
+                    roughness 0.8
+                    metalness 0
+                  }
+                  geometry Mesh {
+                    url [
+                      "meshes/propeller_cw.dae"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+      DEF REAR_LEFT_PROP Transform {
+        translation -0.22978 0.22978 0.02305
+        rotation 1 0 0 1.5707996938995747
+        children [
+          Propeller {
+            shaftAxis 0 1 0
+            thrustConstants 2.55e-05 0
+            torqueConstants 5.1e-07 0
+            fastHelixThreshold 50
+            device RotationalMotor {
+              name "rear_left_motor"
+              acceleration 1000
+              maxVelocity 5000
+              maxTorque 1000
+            }
+            fastHelix Solid {
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0.5 0.5 0.5
+                    baseColorMap ImageTexture {
+                      url [
+                        "textures/fast_helix.png"
+                      ]
+                    }
+                    metalness 0
+                  }
+                  geometry Cylinder {
+                    height 0.01
+                    radius 0.14
+                  }
+                }
+              ]
+            }
+            slowHelix Solid {
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0.5 0.5 0.5
+                    roughness 0.8
+                    metalness 0
+                  }
+                  geometry Mesh {
+                    url [
+                      "meshes/propeller_ccw.dae"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+      DEF REAR_RIGHT_PROP Transform {
+        translation -0.22978 -0.22978 0.02305
+        rotation 1 0 0 1.5707996938995747
+        children [
+          Propeller {
+            shaftAxis 0 1 0
+            thrustConstants -2.55e-05 0
+            torqueConstants 5.1e-07 0
+            fastHelixThreshold 50
+            device RotationalMotor {
+              name "rear_right_motor"
+              acceleration 1000
+              maxVelocity 5000
+              maxTorque 1000
+            }
+            fastHelix Solid {
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0.5 0.5 0.5
+                    baseColorMap ImageTexture {
+                      url [
+                        "textures/fast_helix.png"
+                      ]
+                    }
+                    metalness 0
+                  }
+                  geometry Cylinder {
+                    height 0.01
+                    radius 0.14
+                  }
+                }
+              ]
+            }
+            slowHelix Solid {
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0.5 0.5 0.5
+                    roughness 0.8
+                    metalness 0
+                  }
+                  geometry Mesh {
+                    url [
+                      "meshes/propeller_cw.dae"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+      DEF BODY Transform {
+        rotation -0.5773509358554485 0.5773509358554485 0.5773489358556708 -2.094395307179586
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0 0 0
+              roughness 1
+              metalness 0
+            }
+            geometry Mesh {
+              url [
+                "meshes/M100.stl"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
