@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(uav_control)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
 )
 
+find_package(Eigen3 REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -150,10 +151,24 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(${PROJECT_NAME}_joy_node src/joy_node.cpp)
-set_target_properties(${PROJECT_NAME}_joy_node PROPERTIES OUTPUT_NAME joy_node)
-add_dependencies(${PROJECT_NAME}_joy_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME}_joy_node
+add_executable(${PROJECT_NAME}_joy_control_node src/joy_control_node.cpp)
+set_target_properties(${PROJECT_NAME}_joy_control_node PROPERTIES OUTPUT_NAME joy_control_node)
+add_dependencies(${PROJECT_NAME}_joy_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_joy_control_node
+  ${catkin_LIBRARIES}
+)
+
+add_executable(${PROJECT_NAME}_attitude_control_node src/attitude_control_node.cpp)
+set_target_properties(${PROJECT_NAME}_attitude_control_node PROPERTIES OUTPUT_NAME attitude_control_node)
+add_dependencies(${PROJECT_NAME}_attitude_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_attitude_control_node
+  ${catkin_LIBRARIES}
+)
+
+add_executable(${PROJECT_NAME}_position_control_node src/position_control_node.cpp)
+set_target_properties(${PROJECT_NAME}_position_control_node PROPERTIES OUTPUT_NAME position_control_node)
+add_dependencies(${PROJECT_NAME}_position_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_position_control_node
   ${catkin_LIBRARIES}
 )
 

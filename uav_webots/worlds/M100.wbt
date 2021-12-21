@@ -1,13 +1,14 @@
 #VRML_SIM R2021a utf8
 WorldInfo {
-  basicTimeStep 8
+  basicTimeStep 2
+  FPS 30
   coordinateSystem "NUE"
 }
 Viewpoint {
   orientation -0.09259738052552982 -0.9911284780230788 -0.09534183327094962 1.6089060320746633
   position -2.9817397750888586 0.8552978981296095 -0.07183223731160021
   follow "M100"
-  followType "Pan and Tilt Shot"
+  followType "Tracking Shot"
 }
 TexturedBackgroundLight {
 }
