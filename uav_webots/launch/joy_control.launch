@@ -2,13 +2,13 @@
 <launch>
   <param name="/use_sim_time" value="true"/>
   <include file="$(find webots_ros)/launch/webots.launch">
-    <arg name="mode" value="realtime"/>
+    <arg name="mode" value="pause"/>
     <arg name="no_gui" value="false"/>
     <arg name="world" value="$(find uav_webots)/worlds/M100.wbt"/>
   </include>
 
   <env name="LD_LIBRARY_PATH" value="$(env LD_LIBRARY_PATH):$(env WEBOTS_HOME)/lib/controller"/>
-  <node name="wb_controller" pkg="uav_webots" type="wb_controller_node" output="screen"/>
+  <node name="wb_controller" pkg="uav_webots" type="wb_controller_node" output="screen" args="1"/>
   <node name="joy" pkg="joy" type="joy_node" output="screen"/>
   <node name="joy_control" pkg="uav_control" type="joy_control_node" output="screen"/>
   <node name="attitude_control" pkg="uav_control" type="attitude_control_node" output="screen"/>

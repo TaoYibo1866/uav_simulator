@@ -6,6 +6,7 @@
 #include <webots/GPS.hpp>
 #include <webots/Motor.hpp>
 #include <webots/InertialUnit.hpp>
+#include <webots/LED.hpp>
 #include <nav_msgs/Odometry.h>
 #include <tf2/LinearMath/Transform.h>
 #include <tf2/LinearMath/Matrix3x3.h>
@@ -35,6 +36,10 @@ void cmdCb(Joy::ConstPtr msg, Motor* motor1, Motor* motor2, Motor* motor3, Motor
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "wb_controller");
+  int publish_clock = 1;
+  if (argc == 2)
+    publish_clock = atoi(argv[1]);
+  ROS_INFO("publish_clock = %d", publish_clock);
 
   // webots setup
   Robot* robot = new Robot;
@@ -57,6 +62,8 @@ int main(int argc, char** argv)
   gyro->enable(STATE_PERIOD_MS);
   InertialUnit* imu = robot->getInertialUnit("inertial unit");
   imu->enable(STATE_PERIOD_MS);
+  LED* led = robot->getLED("led");
+  led->set(1);
 
   // ros setup
   ros::NodeHandle nh;
@@ -69,7 +76,8 @@ int main(int argc, char** argv)
     double t = robot->getTime();
     Clock clock;
     clock.clock.fromSec(t);
-    clock_pub.publish(clock);
+    if (publish_clock)
+      clock_pub.publish(clock);
 
     if ((int)(t * 1000) % STATE_PERIOD_MS == 0)
     {
