@@ -6,8 +6,9 @@
 $ sudo dpkg -i webots_2021a_amd64.deb
 $ sudo echo "export WEBOTS_HOME=/usr/local/webots" >> ~/.bashrc
 $ source ~/.bashrc
-$ sudo apt-get install ros-melodic-webots-ros
-$ sudo apt-get install ros-melodic-joy
+$ sudo apt-get install libeigen3-dev
+$ sudo apt-get install ros-noetic-webots-ros
+$ sudo apt-get install ros-noetic-joy
 ```
 ## Build
 ```Bash
@@ -20,3 +21,4 @@ $ catkin_make
 ```Bash
 $ roslaunch uav_webots joy_control.launch
 ```
+![image](demo.png)
