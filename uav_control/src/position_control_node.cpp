@@ -4,16 +4,16 @@
 #include <sensor_msgs/Joy.h>
 #include <Eigen/Eigen>
 
-#define KX1 3
-#define KX2 3
-#define KX3 3
+#define KX1 8
+#define KX2 8
+#define KX3 17
 #define KV1 6
 #define KV2 6
-#define KV3 6
-#define MASS 2.4
+#define KV3 10
+#define MASS 2.70703
 #define G 9.8
-#define MAX_TILT M_PI / 6
-#define MIN_THRUST 10
+#define MAX_TILT M_PI / 4
+
 using nav_msgs::Odometry;
 using geometry_msgs::Pose;
 using sensor_msgs::Joy;
@@ -40,8 +40,8 @@ PositionControl::PositionControl()
 {
   ros::NodeHandle nh;
   ctrl_pub_ = nh.advertise<Pose>("attitude_force", 1);
-  cmd_sub = nh.subscribe<Joy>("trajectory", 1, &PositionControl::cmdCb, this);
-  state_sub_ = nh.subscribe<Odometry>("state", 1, &PositionControl::stateCb, this);
+  cmd_sub = nh.subscribe<Joy>("trajectory", 1, &PositionControl::cmdCb, this, ros::TransportHints().tcpNoDelay());
+  state_sub_ = nh.subscribe<Odometry>("state", 1, &PositionControl::stateCb, this, ros::TransportHints().tcpNoDelay());
   des_yaw_ = 0;
   des_pos_ = Eigen::Vector3d::Zero();
   des_vel_ = Eigen::Vector3d::Zero();
@@ -54,7 +54,7 @@ void PositionControl::cmdCb(Joy msg)
 {
   if (msg.axes.size() != 10)
   {
-    ROS_WARN("msg.axes.size != 10");
+    ROS_WARN("axes.size != 10");
     return;
   }
 
@@ -84,14 +84,10 @@ void PositionControl::stateCb(Odometry msg)
   Eigen::Vector3d kv(KV1, KV2, KV3);
   Eigen::Vector3d force = kx.asDiagonal() * pos_err + kv.asDiagonal() * vel_err + MASS * des_acc_ + MASS * G * Eigen::Vector3d::UnitZ();
 
-  if (force(2) < MIN_THRUST)
-  {
-    force(2) = MIN_THRUST; 
-  }
-
+  // limit tilt angle to MAX_TILT
   double c = cos(MAX_TILT);
-  Eigen::Vector3d f = force - MASS * G * Eigen::Vector3d::UnitZ();
   if (Eigen::Vector3d(0, 0, 1).dot(force.normalized()) < c) {
+    Eigen::Vector3d f = force - MASS * G * Eigen::Vector3d::UnitZ();
     double nf = f.norm();
     double A = c * c * nf * nf - f(2) * f(2);
     double B = 2 * (c * c - 1) * f(2) * MASS * G;
@@ -102,7 +98,10 @@ void PositionControl::stateCb(Odometry msg)
 
   Eigen::Vector3d b1c, b2c, b3c;
   Eigen::Vector3d b1d(cos(des_yaw_), sin(des_yaw_), 0);
-  b3c = force.normalized();
+  if (force.norm() < 1e-7)
+    b3c = Eigen::Vector3d::UnitZ();
+  else
+    b3c = force.normalized();
   b2c = b3c.cross(b1d).normalized();
   b1c = b2c.cross(b3c).normalized();
   Eigen::Matrix3d Rc;

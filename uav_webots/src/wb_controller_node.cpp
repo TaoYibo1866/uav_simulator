@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <rosgraph_msgs/Clock.h>
-#include <geometry_msgs/Twist.h>
+#include <sensor_msgs/Joy.h>
 #include <webots/Robot.hpp>
 #include <webots/Gyro.hpp>
 #include <webots/GPS.hpp>
@@ -15,35 +15,21 @@ using namespace webots;
 using namespace Eigen;
 using rosgraph_msgs::Clock;
 using nav_msgs::Odometry;
-using geometry_msgs::Twist;
+using sensor_msgs::Joy;
 
 #define STATE_PERIOD_MS 2
-#define KF           2.55e-5 //  N  per rad/s
-#define KM           5.1e-7  //  Nm per rad/s
-#define ARM_LENGTH   0.22978 //  m
-#define POSITIVE(x) x < 0 ? 0 : x
 
-void cmdCb(Twist::ConstPtr msg, Motor* motor1, Motor* motor2, Motor* motor3, Motor* motor4)
+void cmdCb(Joy::ConstPtr msg, Motor* motor1, Motor* motor2, Motor* motor3, Motor* motor4)
 {
-  double f = msg->linear.z;
-  double M1 = msg->angular.x;
-  double M2 = msg->angular.y;
-  double M3 = msg->angular.z;
-  M1 = M1 / ARM_LENGTH;
-  M2 = M2 / ARM_LENGTH;
-  M3 = M3 / (KM / KF);
-  double f1 = POSITIVE(0.25 * (f - M1 - M2 - M3));
-  double f2 = POSITIVE(0.25 * (f + M1 - M2 + M3));
-  double f3 = POSITIVE(0.25 * (f + M1 + M2 - M3));
-  double f4 = POSITIVE(0.25 * (f - M1 + M2 + M3));
-  double w1 =  sqrt(f1 / KF);
-  double w2 = -sqrt(f2 / KF);
-  double w3 =  sqrt(f3 / KF);
-  double w4 = -sqrt(f4 / KF);
-  motor1->setVelocity(w1);
-  motor2->setVelocity(w2);
-  motor3->setVelocity(w3);
-  motor4->setVelocity(w4);
+  if (msg->axes.size() != 4)
+  {
+    ROS_WARN("axes.size() != 4");
+    return;
+  }
+  motor1->setVelocity(msg->axes[0]);
+  motor2->setVelocity(msg->axes[1]);
+  motor3->setVelocity(msg->axes[2]);
+  motor4->setVelocity(msg->axes[3]);
 }
 
 int main(int argc, char** argv)
@@ -76,7 +62,7 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   ros::Publisher clock_pub = nh.advertise<Clock>("/clock", 1);
   ros::Publisher state_pub = nh.advertise<Odometry>("state", 1);
-  ros::Subscriber cmd_sub = nh.subscribe<Twist>("actuation", 1, boost::bind(cmdCb, _1, motor1, motor2, motor3, motor4));
+  ros::Subscriber cmd_sub = nh.subscribe<Joy>("actuation", 1, boost::bind(cmdCb, _1, motor1, motor2, motor3, motor4), ros::VoidConstPtr(), ros::TransportHints().tcpNoDelay());
 
   while (ros::ok() && robot->step(timestep) != -1)
   {
@@ -96,9 +82,9 @@ int main(int argc, char** argv)
       static double prev_x = x;
       static double prev_y = y;
       static double prev_z = z;
-      double vx = (x - prev_x) * 1e3 / timestep;
-      double vy = (y - prev_y) * 1e3 / timestep;
-      double vz = (z - prev_z) * 1e3 / timestep;
+      double vx = (x - prev_x) * 1e3 / STATE_PERIOD_MS;
+      double vy = (y - prev_y) * 1e3 / STATE_PERIOD_MS;
+      double vz = (z - prev_z) * 1e3 / STATE_PERIOD_MS;
       prev_x = x;
       prev_y = y;
       prev_z = z;

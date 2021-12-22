@@ -1,27 +1,29 @@
 #include <ros/ros.h>
 #include <Eigen/Eigen>
 #include <geometry_msgs/Pose.h>
-#include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Joy.h>
 #include <nav_msgs/Odometry.h>
 
-#define J11 0.01
-#define J22 0.01
-#define J33 0.016
+#define J11 0.0341171
+#define J22 0.0363089
+#define J33 0.0627386
 #define J12 0
 #define J13 0
 #define J23 0
-#define KR1 3
-#define KR2 3
-#define KR3 1
-#define KOM1 0.5
-#define KOM2 0.5
-#define KOM3 0.2
+#define KR1 4
+#define KR2 4
+#define KR3 2
+#define KOM1 0.7
+#define KOM2 0.7
+#define KOM3 0.7
+#define KF           2.55e-5 //  N  per rad/s
+#define KM           5.1e-7  //  Nm per rad/s
+#define ARM_LENGTH   0.22978 //  m
 #define POSITIVE(x) (x < 0 ? 0 : x)
 
-using geometry_msgs::Twist;
 using geometry_msgs::Pose;
 using nav_msgs::Odometry;
+using sensor_msgs::Joy;
 
 class AttitudeControl
 {
@@ -42,9 +44,9 @@ private:
 AttitudeControl::AttitudeControl()
 {
   ros::NodeHandle nh;
-  state_sub_ = nh.subscribe<Odometry>("state", 1, &AttitudeControl::stateCb, this);
-  cmd_sub_ = nh.subscribe<Pose>("attitude_force", 1, &AttitudeControl::cmdCb, this);
-  ctrl_pub_ = nh.advertise<Twist>("actuation", 1);
+  state_sub_ = nh.subscribe<Odometry>("state", 1, &AttitudeControl::stateCb, this, ros::TransportHints().tcpNoDelay());
+  cmd_sub_ = nh.subscribe<Pose>("attitude_force", 1, &AttitudeControl::cmdCb, this, ros::TransportHints().tcpNoDelay());
+  ctrl_pub_ = nh.advertise<Joy>("actuation", 1);
   Rd_ = Eigen::Matrix3d::Identity();
   fd_ = Eigen::Vector3d::Zero();
 }
@@ -91,7 +93,6 @@ void AttitudeControl::stateCb(Odometry msg)
   double Rd32 = Rd_(2, 1);
   double Rd33 = Rd_(2, 2);
 
-  double thrust = POSITIVE(R13 * fd_(0) + R23 * fd_(1) + R33 * fd_(2));
   double psi = 0.5 * (3.0 - (Rd11 * R11 + Rd21 * R21 + Rd31 * R31 + 
                              Rd12 * R12 + Rd22 * R22 + Rd32 * R32 +
                              Rd13 * R13 + Rd23 * R23 + Rd33 * R33));
@@ -128,12 +129,39 @@ void AttitudeControl::stateCb(Odometry msg)
   Om(2) = Om3;
   Eigen::Vector3d comp = Om.cross(J * Om);
 
-  Twist ctrl;
-  ctrl.linear.z = thrust;
-  ctrl.angular.x = -KR1   * eR1 - KOM1 * eOm1 + comp(0);
-  ctrl.angular.y = -KR2   * eR2 - KOM2 * eOm2 + comp(1);
-  ctrl.angular.z = -KR3   * eR3 - KOM3 * eOm3 + comp(2);
+  double f = POSITIVE(R13 * fd_(0) + R23 * fd_(1) + R33 * fd_(2));
+  double M1 = -KR1   * eR1 - KOM1 * eOm1 + comp(0);
+  double M2 = -KR2   * eR2 - KOM2 * eOm2 + comp(1);
+  double M3 = -KR3   * eR3 - KOM3 * eOm3 + comp(2);
 
+  double thrust[4];
+  thrust[0] = 0.25 * (f - M1 / ARM_LENGTH - M2 / ARM_LENGTH - M3 / (KM / KF));
+  thrust[1] = 0.25 * (f + M1 / ARM_LENGTH - M2 / ARM_LENGTH + M3 / (KM / KF));
+  thrust[2] = 0.25 * (f + M1 / ARM_LENGTH + M2 / ARM_LENGTH - M3 / (KM / KF));
+  thrust[3] = 0.25 * (f - M1 / ARM_LENGTH + M2 / ARM_LENGTH + M3 / (KM / KF));
+
+  for (int i = 0; i < 4; i++)
+  {
+    if (thrust[i] < 0)
+    {
+      thrust[0] -= thrust[i];
+      thrust[1] -= thrust[i];
+      thrust[2] -= thrust[i];
+      thrust[3] -= thrust[i];
+    }
+  }
+
+  double w1 =  sqrt(thrust[0] / KF);
+  double w2 = -sqrt(thrust[1] / KF);
+  double w3 =  sqrt(thrust[2] / KF);
+  double w4 = -sqrt(thrust[3] / KF);
+  
+  Joy ctrl;
+  ctrl.axes.resize(4);
+  ctrl.axes[0] = w1;
+  ctrl.axes[1] = w2;
+  ctrl.axes[2] = w3;
+  ctrl.axes[3] = w4;
   ctrl_pub_.publish(ctrl);
 }
 

@@ -10,7 +10,7 @@
   <env name="LD_LIBRARY_PATH" value="$(env LD_LIBRARY_PATH):$(env WEBOTS_HOME)/lib/controller"/>
   <node name="wb_controller" pkg="uav_webots" type="wb_controller_node" output="screen"/>
   <node name="joy" pkg="joy" type="joy_node" output="screen"/>
-  <!-- <node name="joy_control" pkg="uav_control" type="joy_control_node" output="screen"/> -->
+  <node name="joy_control" pkg="uav_control" type="joy_control_node" output="screen"/>
   <node name="attitude_control" pkg="uav_control" type="attitude_control_node" output="screen"/>
   <node name="position_control" pkg="uav_control" type="position_control_node" output="screen"/>
 </launch>

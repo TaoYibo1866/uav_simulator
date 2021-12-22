@@ -62,9 +62,9 @@ PROTO M100 [
             fastHelixThreshold 50
             device RotationalMotor {
               name "front_right_motor"
-              acceleration 1000
+              acceleration -1
               maxVelocity 5000
-              maxTorque 1000
+              maxTorque 1e9
             }
             fastHelix Solid {
               children [
@@ -115,9 +115,9 @@ PROTO M100 [
             fastHelixThreshold 50
             device RotationalMotor {
               name "front_left_motor"
-              acceleration 1000
+              acceleration -1
               maxVelocity 5000
-              maxTorque 1000
+              maxTorque 1e9
             }
             fastHelix Solid {
               children [
@@ -168,9 +168,9 @@ PROTO M100 [
             fastHelixThreshold 50
             device RotationalMotor {
               name "rear_left_motor"
-              acceleration 1000
+              acceleration -1
               maxVelocity 5000
-              maxTorque 1000
+              maxTorque 1e9
             }
             fastHelix Solid {
               children [
@@ -221,9 +221,9 @@ PROTO M100 [
             fastHelixThreshold 50
             device RotationalMotor {
               name "rear_right_motor"
-              acceleration 1000
+              acceleration -1
               maxVelocity 5000
-              maxTorque 1000
+              maxTorque 1e9
             }
             fastHelix Solid {
               children [

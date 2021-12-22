@@ -7,7 +7,6 @@
 
 using sensor_msgs::Joy;
 using nav_msgs::Odometry;
-
 class JoyControl
 {
 public:
@@ -30,8 +29,8 @@ JoyControl::JoyControl()
 {
   ros::NodeHandle nh;
   cmd_pub_ = nh.advertise<Joy>("trajectory", 1);
-  joy_sub_ = nh.subscribe<Joy>("joy", 1, &JoyControl::joyCb, this);
-  state_sub_ = nh.subscribe<Odometry>("state", 1, &JoyControl::stateCb, this);
+  joy_sub_ = nh.subscribe<Joy>("joy", 1, &JoyControl::joyCb, this, ros::TransportHints().tcpNoDelay());
+  state_sub_ = nh.subscribe<Odometry>("state", 1, &JoyControl::stateCb, this, ros::TransportHints().tcpNoDelay());
   cmd_pos_ = Eigen::Vector3d::Zero();
   cmd_vel_b_ = Eigen::Vector3d::Zero();
   cmd_yaw_ = 0;
@@ -42,10 +41,10 @@ JoyControl::~JoyControl() {}
 
 void JoyControl::joyCb(Joy msg)
 {
-  cmd_vel_b_(0) = 5.0 * msg.axes[3];
-	cmd_vel_b_(1) = 5.0 * msg.axes[2];
-  cmd_vel_b_(2) = 5.0 * msg.axes[1];
-	cmd_yawrate_ = 180 * msg.axes[0] * M_PI / 180.0;
+  cmd_vel_b_(0) = 10.0 * msg.axes[3];
+	cmd_vel_b_(1) = 10.0 * msg.axes[2];
+  cmd_vel_b_(2) = 1.0 * msg.axes[1];
+	cmd_yawrate_ = 120 * msg.axes[0] * M_PI / 180.0;
 }
 
 void JoyControl::stateCb(Odometry msg)
@@ -82,7 +81,9 @@ void JoyControl::stateCb(Odometry msg)
   Eigen::Vector3d cmd_acc = (cmd_vel - prev_cmd_vel) / STATE_PERIOD;
   prev_cmd_vel = cmd_vel;
 
+  //ROS_INFO("%lf, %lf", cmd_vel(2), cmd_pos_(2));
   Joy cmd;
+  cmd.header.stamp = msg.header.stamp;
   cmd.axes.push_back(cmd_pos_(0));
   cmd.axes.push_back(cmd_pos_(1));
   cmd.axes.push_back(cmd_pos_(2));

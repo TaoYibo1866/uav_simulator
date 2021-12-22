@@ -5,10 +5,10 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.09259738052552982 -0.9911284780230788 -0.09534183327094962 1.6089060320746633
-  position -2.9817397750888586 0.8552978981296095 -0.07183223731160021
+  orientation 0.002015271132382522 -0.9998715648253623 -0.015899450806377283 3.393717956172931
+  position 2.6734143784343725 1.812472951862816 -10.859221861554465
   follow "M100"
-  followType "Tracking Shot"
+  followType "Pan and Tilt Shot"
 }
 TexturedBackgroundLight {
 }
@@ -17,15 +17,16 @@ TexturedBackground {
 Floor {
 }
 M100 {
-  translation 0 0.19 0
+  translation 0 3 0
+  rotation 0.6776629654679902 -0.5199849735028663 0.5199889735026625 -1.9504353071795864
   physics Physics {
     density -1
-    mass 2.4
+    mass 2.70703
     centerOfMass [
       0 0 0
     ]
     inertiaMatrix [
-      0.01 0.016 0.01
+      0.0341171 0.0363089 0.0627386
       0 0 0
     ]
   }
